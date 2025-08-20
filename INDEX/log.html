@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+  <meta charset="UTF-8">
+  <title>Land Calculator (Add/Remove)</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #29AD82, #1A704F);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      width: 90%;
+      max-width: 500px;
+      text-align: center;
+    }
+    h2 {
+      color: #1A704F;
+      margin-bottom: 20px;
+    }
+    input {
+      width: 80%;
+      padding: 12px;
+      font-size: 16px;
+      border: 2px solid #29AD82;
+      border-radius: 10px;
+      margin-bottom: 15px;
+    }
+    input:focus {
+      outline: none;
+      border: 2px solid #1A704F;
+    }
+    button {
+      background: #29AD82;
+      color: white;
+      border: none;
+      padding: 10px 18px;
+      font-size: 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.3s;
+      margin: 3px;
+    }
+    button:hover {
+      background: #1A704F;
+      transform: scale(1.05);
+    }
+    .remove-btn {
+      background: #E74C3C;
+    }
+    .remove-btn:hover {
+      background: #C0392B;
+    }
+    #list {
+      margin-top: 15px;
+      text-align: left;
+      font-size: 16px;
+      background: #e8f5ef;
+      padding: 10px;
+      border-radius: 10px;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    #result {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
+      color: #1A704F;
+      line-height: 1.8em;
+      background: #e8f5ef;
+      padding: 15px;
+      border-radius: 12px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h2>📏 शित्तल जग्गा क्याल्कुलेटर</h2>
+
+    <input type="number" id="sqmInput" placeholder="जग्गा (m²) लेख्नुहोस्">
+    <br>
+    <button onclick="addLand()">➕ थप्नुहोस्</button>
+    <button onclick="calculateTotal()">✅ Calculate</button>
+
+    <div id="list"></div>
+    <div id="result"></div>
+  </div>
+
+  <script>
+    let lands = [];
+
+    function addLand() {
+      let val = parseFloat(document.getElementById("sqmInput").value);
+      if (isNaN(val) || val <= 0) {
+        alert("⚠️ कृपया सहि वर्ग मिटर लेख्नुहोस्!");
+        return;
+      }
+      lands.push(val);
+      document.getElementById("sqmInput").value = "";
+      showList();
+    }
+
+    function removeLand(index) {
+      lands.splice(index, 1);
+      showList();
+    }
+
+    function showList() {
+      if (lands.length === 0) {
+        document.getElementById("list").innerHTML = "";
+        return;
+      }
+      let html = "<b>थपिएको जग्गा (m²):</b><br>";
+      lands.forEach((v, i) => {
+        html += `${i+1}) ${v} m² 
+                 <button class="remove-btn" onclick="removeLand(${i})">❌ Remove</button><br>`;
+      });
+      document.getElementById("list").innerHTML = html;
+    }
+
+    function calculateTotal() {
+      let totalSqm = 0;
+
+      // यदि input field मा value छ भने पनि त्यसलाई use गर
+      let inputVal = parseFloat(document.getElementById("sqmInput").value);
+      if (!isNaN(inputVal) && inputVal > 0) {
+        totalSqm = inputVal;
+      } else if (lands.length > 0) {
+        totalSqm = lands.reduce((a, b) => a + b, 0);
+      } else {
+        alert("⚠️ कृपया कम्तिमा एउटा जग्गा हाल्नुहोस्!");
+        return;
+      }
+
+      // Conversion factors
+      const biggha_m2 = 6772.63;
+      const kattha_m2 = 338.63;
+      const dhur_m2 = 16.931;
+
+      // biggha
+      let biggha = Math.floor(totalSqm / biggha_m2);
+      let remainder = totalSqm % biggha_m2;
+
+      // kattha
+      let kattha = Math.floor(remainder / kattha_m2);
+      remainder = remainder % kattha_m2;
+
+      // dhur
+      let dhur = (remainder / dhur_m2).toFixed(2);
+
+      document.getElementById("result").style.display = "block";
+      document.getElementById("result").innerHTML =
+        `📊 जम्मा: ${totalSqm.toFixed(2)} m²<br><br>` +
+        `🌿 ${biggha} बिघा<br>` +
+        `🌾 ${kattha} कठ्ठा<br>` +
+        `🏡 ${dhur} धुर`;
+    }
+  </script>
+
+</body>
+</html>
